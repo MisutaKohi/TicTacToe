@@ -83,9 +83,54 @@
   <script>
     const gridContainer = document.getElementById('grid-container');
     const subheader = document.getElementById('subheader');
+    const squares = document.getElementsByClassName('clickable');
 
-    const game = (function createGame() {
+    function createPlayer(char, gameBoard) {
+      const board = gameBoard;
+      const symbol = char;
+      const rows = new Array(3).fill(0);
+      const cols = new Array(3).fill(0);
+      let diagonalForward = 0;
+      let diagonalBackward = 0;
+
+      let hasWon = false;
+
+      function move(row, col) {
+        turn++;
+        board[row][col] = symbol;
+        rows[row]++;
+        cols[col]++;
+        if (row == col) {
+          diagonalBackward++;
+          diagonalForward++;
+        } else if (row == 2 && col == 0) {
+          diagonalForward++;
+        } else if (row == 0 && col == 2) {
+          diagonalForward++;
+        }
+
+        hasWon = rows[row] === 3 || 
+          cols[col] === 3 ||
+          diagonalBackward === 3 ||
+          diagonalBackward === 3;
+      }
+
+      function hasPlayerWon() {
+        return hasWon;
+      }
+
+      return {
+        move,
+        hasPlayerWon
+      }
+    }
+
+    let game = (function createGame() {
       let board = resetBoard();
+      const playerOne = createPlayer('X', board);
+      const playerTwo = createPlayer('O', board);
+      let turn = 1;
+      let isActive = false;
 
       function resetBoard() {
         return [
@@ -103,7 +148,7 @@
             const char = board[i][j];
 
             gridContainer.innerHTML += `
-              <div id='${i + "-" + j}' class=''>
+              <div id='${i + "-" + j}' class='clickable'>
                 <span>${char}</span>
               </div>
             `;
@@ -111,31 +156,28 @@
         }
       }
 
-      function playerOne(row, col) {
-        board[row][col] = 'X';
-        renderBoard();
+      function whoseTurn() {
+        return (turn % 2 != 0) ? 1 : 2;
       }
-
-      function playerTwo(row, col) {
-        board[row][col] = 'O';
-        renderBoard();
-      }
-
-      
 
       return {
         resetBoard,
         renderBoard,
+        whoseTurn,
         playerOne,
         playerTwo
       };
     })();
 
-    
-
-    
-
     game.renderBoard();
+
+    
+
+    for (const square of squares) {
+      square.addEventListener('click', (event) => {
+        console.log(event.target.id);
+      });
+    }
   </script>
 </body>
 </html>
