@@ -84,19 +84,19 @@
     const gridContainer = document.getElementById('grid-container');
     const subheader = document.getElementById('subheader');
     const squares = document.getElementsByClassName('clickable');
+    const startGameBtn = document.getElementById('start-game-btn');
 
     function createPlayer(char, gameBoard) {
       const board = gameBoard;
       const symbol = char;
+      let hasWon = false;
+
       const rows = new Array(3).fill(0);
       const cols = new Array(3).fill(0);
       let diagonalForward = 0;
       let diagonalBackward = 0;
-
-      let hasWon = false;
-
+      
       function move(row, col) {
-        turn++;
         board[row][col] = symbol;
         rows[row]++;
         cols[col]++;
@@ -155,29 +155,60 @@
           }
         }
       }
+      
+      function takeTurn(row, col) {
+        if (board[row][col] != '' || !isActive) return;
 
-      function whoseTurn() {
-        return (turn % 2 != 0) ? 1 : 2;
+        const player = (turn % 2 != 0) ? playerOne : playerTwo;
+        player.move(row, col);
+        game.renderBoard();
+        
+        if (player.hasPlayerWon()) endGame(turn);
+
+        if (++turn == 10) tieGame();
+      }
+
+      function startGame() {
+        subheader.innerText = 'Player One\'s turn';
+        isActive = true;
+      }
+
+      function endGame(turn) {
+        if (turn % 2 != 0) {
+          subheader.innerText = 'Player One wins! Play again?';
+        } else {
+          subheader.innerText = 'Player Two wins! Play again?';
+        }
+        isActive = !isActive;
+      }
+
+      function isGameActive() {
+        return isActive;
       }
 
       return {
         resetBoard,
         renderBoard,
-        whoseTurn,
+        startGame,
+        takeTurn,
         playerOne,
-        playerTwo
+        playerTwo,
+        isGameActive
       };
     })();
 
     game.renderBoard();
 
-    
-
     for (const square of squares) {
       square.addEventListener('click', (event) => {
-        console.log(event.target.id);
+        const [ row, col ] = event.target.id.split('-');
+        game.takeTurn(row, col);
       });
     }
+
+    startGameBtn.addEventListener('click', () => {
+      game.startGame();
+    })
   </script>
 </body>
 </html>
