@@ -83,7 +83,6 @@
   <script>
     const gridContainer = document.getElementById('grid-container');
     const subheader = document.getElementById('subheader');
-    const squares = document.getElementsByClassName('clickable');
     const startGameBtn = document.getElementById('start-game-btn');
 
     function createPlayer(char, gameBoard) {
@@ -98,21 +97,24 @@
       
       function move(row, col) {
         board[row][col] = symbol;
+        
         rows[row]++;
         cols[col]++;
+        
         if (row == col) {
           diagonalBackward++;
-          diagonalForward++;
-        } else if (row == 2 && col == 0) {
-          diagonalForward++;
-        } else if (row == 0 && col == 2) {
+        } 
+        
+        if (row + col === 2) {
           diagonalForward++;
         }
 
         hasWon = rows[row] === 3 || 
           cols[col] === 3 ||
           diagonalBackward === 3 ||
-          diagonalBackward === 3;
+          diagonalForward === 3;
+
+        console.log(hasWon);
       }
 
       function hasPlayerWon() {
@@ -125,21 +127,20 @@
       }
     }
 
-    let game = (function createGame() {
-      let board = resetBoard();
-      const playerOne = createPlayer('X', board);
-      const playerTwo = createPlayer('O', board);
+    function createGame() {
+      let board = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+      ];
       let turn = 1;
       let isActive = false;
 
-      function resetBoard() {
-        return [
-          ["", "", ""],
-          ["", "", ""],
-          ["", "", ""]
-        ];
-      }
+      const playerOne = createPlayer('X', board);
+      const playerTwo = createPlayer('O', board);
 
+      renderBoard(); // render upon game creation
+      
       function renderBoard() {
         gridContainer.innerHTML = ``;
 
@@ -154,21 +155,46 @@
             `;
           }
         }
+
+        const squares = document.getElementsByClassName('clickable');
+
+        for (const square of squares) {
+          square.addEventListener('click', (event) => {
+            const [ row, col ] = event.target.id.split('-');
+            game.takeTurn(row, col);
+            // console.log(row, col);
+          });
+        }
       }
       
       function takeTurn(row, col) {
         if (board[row][col] != '' || !isActive) return;
+        // console.log(turn);
 
         const player = (turn % 2 != 0) ? playerOne : playerTwo;
         player.move(row, col);
         game.renderBoard();
         
-        if (player.hasPlayerWon()) endGame(turn);
+        if (player.hasPlayerWon()) {
+          endGame(turn);
+          return;
+        }
+        
+        turn++;
+        if (turn === 10) {
+          tieGame();
+          return;
+        }
 
-        if (++turn == 10) tieGame();
+        if (turn % 2 != 0) {
+          subheader.innerText = 'Player One\'s turn';
+        } else {
+          subheader.innerText = 'Player Two\'s turn';
+        }
       }
 
       function startGame() {
+        renderBoard();
         subheader.innerText = 'Player One\'s turn';
         isActive = true;
       }
@@ -180,6 +206,13 @@
           subheader.innerText = 'Player Two wins! Play again?';
         }
         isActive = !isActive;
+        startGameBtn.innerText = 'New Game';
+      }
+
+      function tieGame() {
+        subheader.innerText = 'Tie game... Try again?';
+        isActive = !isActive;
+        startGameBtn.innerText = 'New Game';
       }
 
       function isGameActive() {
@@ -187,28 +220,34 @@
       }
 
       return {
-        resetBoard,
         renderBoard,
+        isGameActive,
         startGame,
         takeTurn,
-        playerOne,
-        playerTwo,
-        isGameActive
       };
-    })();
+    };
 
-    game.renderBoard();
-
-    for (const square of squares) {
-      square.addEventListener('click', (event) => {
-        const [ row, col ] = event.target.id.split('-');
-        game.takeTurn(row, col);
-      });
-    }
+    let game = createGame();
 
     startGameBtn.addEventListener('click', () => {
-      game.startGame();
-    })
+      if (startGameBtn.innerText === 'Reset') {
+        game = createGame();
+        game.startGame();
+        return;
+      }
+
+      if (startGameBtn.innerText === 'New Game') {
+        game = createGame();
+        game.startGame();
+        startGameBtn.innerText = 'Reset';
+        return;
+      }
+      
+      if (!game.isGameActive()) {
+        game.startGame();
+        startGameBtn.innerText = 'Reset';
+      }
+    });
   </script>
 </body>
 </html>
