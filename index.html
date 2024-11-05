@@ -6,7 +6,8 @@
   <title>TicTacToe</title>
   <style>
     * {
-      font-family: sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
+      box-sizing: border-box;
     }
 
     body {
@@ -26,8 +27,8 @@
 
     #grid-container {
       display: grid;
-      grid-template-columns: 150px 150px 150px;
-      grid-template-rows: 150px 150px 150px;
+      grid-template-columns: repeat(3, 150px);
+      grid-template-rows: repeat(3, 150px);
       margin-bottom: 35px;
     }
 
@@ -38,6 +39,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background-color 0.4s;
+    }
+
+    #grid-container > div:hover:not(.blue):not(.orange) {
+      background-color: #fff;
+      cursor: pointer;
     }
 
     #grid-container > div > span {
@@ -63,6 +70,7 @@
     #start-game-btn {
       color: green;
       font-weight: bold;
+      transition: background-color 0.4s;
     }
 
     #start-game-btn:hover {
@@ -149,7 +157,9 @@
             const char = board[i][j];
 
             gridContainer.innerHTML += `
-              <div id='${i + "-" + j}' class='clickable'>
+              <div 
+                id='${i + "-" + j}' 
+                class='clickable ${(char === 'X') ? 'orange' : (char === 'O') ? 'blue' : ''}'>
                 <span>${char}</span>
               </div>
             `;
