@@ -42,8 +42,8 @@
       transition: background-color 0.4s;
     }
 
-    #grid-container > div:hover:not(.blue):not(.orange) {
-      background-color: #fff;
+    #grid-container > div:hover:not(.inactive):not(.blue):not(.orange) {
+      background-color: lightgray;
       cursor: pointer;
     }
 
@@ -84,7 +84,17 @@
 
   <h3 id="subheader">Start a new game?</h3>
 
-  <div id="grid-container"></div>
+  <div id="grid-container">
+    <div id='0-0' class="clickable inactive"></div>
+    <div id='0-1' class="clickable inactive"></div>
+    <div id='0-2' class="clickable inactive"></div>
+    <div id='1-0' class="clickable inactive"></div>
+    <div id='1-1' class="clickable inactive"></div>
+    <div id='1-2' class="clickable inactive"></div>
+    <div id='2-0' class="clickable inactive"></div>
+    <div id='2-1' class="clickable inactive"></div>
+    <div id='2-2' class="clickable inactive"></div>
+  </div>
 
   <button id='start-game-btn' type="button">Start Game</button>
 
@@ -92,9 +102,10 @@
     const gridContainer = document.getElementById('grid-container');
     const subheader = document.getElementById('subheader');
     const startGameBtn = document.getElementById('start-game-btn');
+    const squares = document.getElementsByClassName('clickable');
 
     function createPlayer(char, gameBoard) {
-      const board = gameBoard;
+      const board = gameBoard; // pass by reference
       const symbol = char;
       let hasWon = false;
 
@@ -121,8 +132,6 @@
           cols[col] === 3 ||
           diagonalBackward === 3 ||
           diagonalForward === 3;
-
-        console.log(hasWon);
       }
 
       function hasPlayerWon() {
@@ -136,50 +145,45 @@
     }
 
     function createGame() {
-      let board = [
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', '']
-      ];
+      const board = resetBoard();
       let turn = 1;
-      let isActive = false;
+      let isActive = false; // must call startGame to activate
+      const squaresEventListeners = []; 
 
       const playerOne = createPlayer('X', board);
       const playerTwo = createPlayer('O', board);
 
-      renderBoard(); // render upon game creation
+      function resetBoard() {
+        return [
+          ['', '', ''],
+          ['', '', ''],
+          ['', '', '']
+        ];
+      }
       
       function renderBoard() {
-        gridContainer.innerHTML = ``;
-
         for (let i = 0; i < 3; i++) {
           for (let j = 0; j < 3; j++) {
             const char = board[i][j];
 
-            gridContainer.innerHTML += `
-              <div 
-                id='${i + "-" + j}' 
-                class='clickable ${(char === 'X') ? 'orange' : (char === 'O') ? 'blue' : ''}'>
-                <span>${char}</span>
-              </div>
-            `;
+            const idx = i * 3 + j;
+            squares[idx].classList.remove('inactive');
+            squares[idx].innerHTML = `<span>${char}</span>`;
+            
+            if (char === 'X') {
+              squares[idx].classList.add('orange');
+            } else if (char === 'O') {
+              squares[idx].classList.add('blue');
+            } else {
+              squares[idx].classList.remove('orange');
+              squares[idx].classList.remove('blue');
+            }
           }
-        }
-
-        const squares = document.getElementsByClassName('clickable');
-
-        for (const square of squares) {
-          square.addEventListener('click', (event) => {
-            const [ row, col ] = event.target.id.split('-');
-            game.takeTurn(row, col);
-            // console.log(row, col);
-          });
         }
       }
       
       function takeTurn(row, col) {
         if (board[row][col] != '' || !isActive) return;
-        // console.log(turn);
 
         const player = (turn % 2 != 0) ? playerOne : playerTwo;
         player.move(row, col);
@@ -207,6 +211,17 @@
         renderBoard();
         subheader.innerText = 'Player One\'s turn';
         isActive = true;
+
+        for (const square of squares) {
+          const listener = () => {
+            const [ row, col ] = event.target.id.split('-');
+            game.takeTurn(row, col);
+            console.log(row, col);
+          }
+
+          square.addEventListener('click', listener);
+          squaresEventListeners.push({ square, listener });
+        }
       }
 
       function endGame(turn) {
@@ -216,13 +231,31 @@
           subheader.innerText = 'Player Two wins! Play again?';
         }
         isActive = !isActive;
+        
+        for (const { square, listener } of squaresEventListeners) {
+          square.removeEventListener('click', listener);
+        }
+
+        for (const square of squares) {
+          square.classList.add('inactive');
+        }
+
         startGameBtn.innerText = 'New Game';
       }
 
       function tieGame() {
         subheader.innerText = 'Tie game... Try again?';
-        isActive = !isActive;
         startGameBtn.innerText = 'New Game';
+        
+        isActive = !isActive;
+
+        for (const { square, listener } of squaresEventListeners) {
+          square.removeEventListener('click', listener);
+        }
+
+        for (const square of squares) {
+          square.classList.add('inactive');
+        }
       }
 
       function isGameActive() {
