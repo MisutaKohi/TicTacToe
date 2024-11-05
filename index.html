@@ -148,7 +148,7 @@
       const board = resetBoard();
       let turn = 1;
       let isActive = false; // must call startGame to activate
-      const squaresEventListeners = []; 
+      let squaresEventListeners = []; // add at start and remove at end for performance
 
       const playerOne = createPlayer('X', board);
       const playerTwo = createPlayer('O', board);
@@ -216,7 +216,6 @@
           const listener = () => {
             const [ row, col ] = event.target.id.split('-');
             game.takeTurn(row, col);
-            console.log(row, col);
           }
 
           square.addEventListener('click', listener);
@@ -235,6 +234,7 @@
         for (const { square, listener } of squaresEventListeners) {
           square.removeEventListener('click', listener);
         }
+        squaresEventListeners = [];
 
         for (const square of squares) {
           square.classList.add('inactive');
@@ -252,6 +252,7 @@
         for (const { square, listener } of squaresEventListeners) {
           square.removeEventListener('click', listener);
         }
+        squaresEventListeners = [];
 
         for (const square of squares) {
           square.classList.add('inactive');
