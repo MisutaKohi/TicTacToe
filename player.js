@@ -7,7 +7,7 @@ function createPlayer(char) {
   let diagonalForward = 0;
   let diagonalBackward = 0;
   
-  function move(row, col) {
+  function recordMove(row, col) {
     rows[row]++;
     cols[col]++;
     
@@ -29,9 +29,14 @@ function createPlayer(char) {
     return hasWon;
   }
 
+  function getSymbol() {
+    return symbol;
+  }
+
   return {
-    move,
-    hasPlayerWon
+    recordMove,
+    hasPlayerWon,
+    getSymbol
   }
 }
 
