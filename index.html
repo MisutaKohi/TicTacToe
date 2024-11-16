@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TicTacToe</title>
   <link rel="stylesheet" href="styles.css" />
+  <script type='module' src="main.js" defer></script>
 </head>
 <body>
   <h1>Welcome to another thrilling TicTacToe game!</h1>
@@ -12,19 +13,17 @@
   <h3 id="subheader">Start a new game?</h3>
 
   <div id="grid-container">
-    <div id='0-0' class="clickable inactive"></div>
-    <div id='0-1' class="clickable inactive"></div>
-    <div id='0-2' class="clickable inactive"></div>
-    <div id='1-0' class="clickable inactive"></div>
-    <div id='1-1' class="clickable inactive"></div>
-    <div id='1-2' class="clickable inactive"></div>
-    <div id='2-0' class="clickable inactive"></div>
-    <div id='2-1' class="clickable inactive"></div>
-    <div id='2-2' class="clickable inactive"></div>
+    <div id='0-0' class="square"></div>
+    <div id='0-1' class="square"></div>
+    <div id='0-2' class="square"></div>
+    <div id='1-0' class="square"></div>
+    <div id='1-1' class="square"></div>
+    <div id='1-2' class="square"></div>
+    <div id='2-0' class="square"></div>
+    <div id='2-1' class="square"></div>
+    <div id='2-2' class="square"></div>
   </div>
 
   <button id='start-game-btn' type="button">Start Game</button>
-
-  <script type='module' src="main.js"></script>
 </body>
 </html>
