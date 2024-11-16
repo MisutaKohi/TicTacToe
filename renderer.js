@@ -1,4 +1,9 @@
+import gameStatusCodes from "./main.js";
+
 const squares = document.getElementsByClassName('square');
+const subheader = document.getElementById('subheader');
+const startGameBtn = document.getElementById('start-game-btn');
+
 let squaresEventListeners = [];
 
 export function renderBoard(board) {
@@ -23,13 +28,38 @@ export function renderBoard(board) {
 
 export function addBoardEventListeners(game) {
   for (const square of squares) {
-    square.classList.add('active');
-    
+    square.classList.add('active'); // activate square
+
     const listener = () => {
+      square.classList.remove('active'); // deactivate square
+      square.removeEventListener('click', listener); // deactivate square
+    
       const [ row, col ] = event.target.id.split('-');
-      square.classList.remove('active');
       game.takeTurn(row, col);
       renderBoard(game.getBoardState());
+    
+      const gameStatus = game.getGameStatus();
+    
+      if (gameStatus === gameStatusCodes.IN_PROGRESS) {
+        const turn = game.getTurnNumber();
+
+        subheader.innerText = `Player ${(turn % 2 != 0) ? 'One' : 'Two'}'s turn`;
+
+      } else {
+        /* Game Over */
+        removeBoardEventListeners();
+        startGameBtn.innerText = 'New Game';
+
+        if (gameStatus === gameStatusCodes.PLAYER_ONE_WINS) {
+          subheader.innerText = 'Player One wins! Play again?';
+
+        } else if (gameStatus === gameStatusCodes.PLAYER_TWO_WINS) {
+          subheader.innerText = 'Player Two wins! Play again?';
+          
+        } else {
+          subheader.innerText = 'Tie game... Play again?';
+        }
+      }
     }
 
     square.addEventListener('click', listener);
